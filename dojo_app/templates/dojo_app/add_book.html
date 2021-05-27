@@ -1,0 +1,71 @@
+{% extends 'dojo_app/base.html' %}
+
+{% block head %}
+    {% load static %}
+    <script src="{% static 'dojo_app/js/dojo_app.js' %}"></script>
+    <title>Dojo Reads</title>
+{% endblock %}
+
+{% block header%}
+    <h1 class="d-flex justify-content-center page-title">Dojo Reads</h1>
+{% endblock %}
+
+{% block content %}
+    {% load tz %}
+    {% timezone "America/Santiago" %}
+
+        {% if messages %}
+            <br>
+            <div class="valid-messages">
+                <ul class="messages" id="messages">
+                    {% for message in messages %}
+                    <li>{{message}}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="tableFixHead table-wrapper" style="">
+            <div class="formRegister">
+                <form action="{% url 'add_book' %}" method="POST">
+                    {% csrf_token %}
+                    <h4 class="d-flex justify-content-center page-title">Add a New Book Title and a Review:</h4>
+                    <p>
+                        <label for="title">Book Title:</label>
+                        <input type="text" placeholder="<title>" name="title" id="title" value="{{data.title}}">
+                    </p>
+                    <p>
+                        <label for="formInput">Author:</label>
+                        <div class="formInput" id="formInput" name="formInput">
+                            <span>Choose from the list:</span>
+                            <select name="author" id="author">
+                                <option value="0">ninguno</option>
+                                {% for author in authors %}
+                                    <option value="{{author.id}}">{{author.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="formInput" id="formInput" name="formInput">
+                            <span>Or add a new author:</span>
+                            <input type="text" name="new_author" id="name" value="{{data.new_author}}">
+                        </div>
+                    </p>
+                    <p>
+                        <label for="review">Review:</label>
+                        <textarea name="review" id="review" cols="40" rows="3">{{data.review}}</textarea>
+                    </p>
+                    <p>
+                        <label for="author">Raiting:</label>
+                        <select name="raiting" id="raiting">
+                            {% for i in max_star %}
+                                <option value="{{i}}">{{i}}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+                    <button type="submit">Add Book and Review</button>
+                </form>
+            </div>
+        </div>
+
+    {% endtimezone %}
+{% endblock %}

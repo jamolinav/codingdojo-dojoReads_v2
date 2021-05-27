@@ -1,0 +1,98 @@
+{% extends 'dojo_app/base.html' %}
+
+{% block head %}
+    {% load static %}
+    <script src="{% static 'dojo_app/js/dojo_app.js' %}"></script>
+    <title>Dojo Reads</title>
+{% endblock %}
+
+{% block header%}
+    <h1 class="d-flex justify-content-center page-title">Dojo Reads</h1>
+{% endblock %}
+
+{% block content %}
+    {% load tz %}
+    {% timezone "America/Santiago" %}
+
+    {% if messages %}
+        <br>
+        <div class="valid-messages">
+            <ul class="messages" id="messages">
+                {% for message in messages %}
+                <li>{{message}}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+        <a href="{% url 'add_book' %}" style="display: flex; justify-content: flex-end; margin-right: 11%;">Add Book and Review</a>
+        <div class="tableFixHead table-wrapper" style="display: grid; grid-template-columns: 50% 50%;">
+            <div class="formRegister">
+                <h4 class="d-flex justify-content-center page-title">Recent Book Reviews</h4>
+                <ul>
+                    {% for book in books_last_review %}
+                        <li style="display: grid;">
+                            <a href="{% url 'book' id_book=book.id %}">{{ book.title }}</a>
+                            <label>Raiting
+                                {% for i in total_star %}
+                                    <span>  
+                                        {% if book.raiting > i  %}
+                                            {% load static %}
+                                            <img src="{% static 'dojo_app/img/star_enabled.png' %}" alt="" style="width: 15px; height: 15px;">
+                                        {% else %}
+                                            <img src="{% static 'dojo_app/img/star_disabled.png' %}" alt="" style="width: 15px; height: 15px;">
+                                        {% endif %}
+                                    </span>
+                                {% endfor %}
+                                <p><a href="">{{book.author.name}}</a> 
+                                    says: 
+                                        {{book.reviews.last.review}}
+                                        <p> Posted on: {{book.reviews.last.updated_at}}</p>
+                                </p>
+                               
+                            </label>
+                        <br>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <hr>
+                <ul>
+                    {% for book in books_last_review %}
+                        <li style="display: grid;">
+                            <a href="">{{ book.title }}</a>
+                            <label>Raiting
+                                {% for i in total_star %}
+                                    <span>  
+                                        {% if book.raiting > i  %}
+                                            {% load static %}
+                                            <img src="{% static 'dojo_app/img/star_enabled.png' %}" alt="" style="width: 15px; height: 15px;">
+                                        {% else %}
+                                            <img src="{% static 'dojo_app/img/star_disabled.png' %}" alt="" style="width: 15px; height: 15px;">
+                                        {% endif %}
+                                    </span>
+                                {% endfor %}
+                                {% for review in last_reviews %}
+                                    {% if review == book.review %}
+                                        <p><a href="">{{book.author.name}}</a> says: {{review.review}}</p>
+                                        <p> Posted on: {{review.updated_at}}</p>
+                                    {% endif %}
+                                {% endfor %}
+                            </label>
+                        <br>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="formRegister">
+                <h4 class="d-flex justify-content-center page-title">Other Books with Reviews</h4>
+                <ul>
+                    {% for book in others_books %}
+                        <li style="display: grid;">
+                            <a href="">{{ book.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    {% endtimezone %}
+{% endblock %}

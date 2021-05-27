@@ -1,0 +1,39 @@
+{% extends 'dojo_app/base.html' %}
+
+{% block head %}
+    {% load static %}
+    <script src="{% static 'dojo_app/js/dojo_app.js' %}"></script>
+    <title>Dojo Reads</title>
+{% endblock %}
+
+{% block header%}
+    <h1 class="d-flex justify-content-center page-title">Dojo Reads</h1>
+{% endblock %}
+
+{% block content %}
+    {% load tz %}
+    {% timezone "America/Santiago" %}
+
+    {% if messages %}
+        <br>
+        <div class="valid-messages">
+            <ul class="messages" id="messages">
+                {% for message in messages %}
+                <li>{{message}}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+        <a href="{% url 'add_book' %}" style="display: flex; justify-content: flex-end; margin-right: 11%;">Add Book and Review</a>
+        <div class="tableFixHead table-wrapper" style="display: grid; grid-template-columns: 50% 50%;">
+            <div class="formRegister">
+                <h4 class="d-flex justify-content-center page-title">Recent Book Reviews</h4>
+            </div>
+            <div class="formRegister">
+                <h4 class="d-flex justify-content-center page-title">Other Books with Reviews</h4>
+                    
+            </div>
+        </div>
+
+    {% endtimezone %}
+{% endblock %}

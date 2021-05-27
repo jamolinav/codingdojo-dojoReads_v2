@@ -1,0 +1,49 @@
+{% extends 'dojo_app/base.html' %}
+
+{% block head %}
+    <title>Dojo Reads</title>
+{% endblock %}
+
+{% block header%}
+    <h1 class="d-flex justify-content-center page-title">Dojo Reads</h1>
+{% endblock %}
+
+{% block content %} 
+
+        <div class="tableFixHead table-wrapper">
+                <div class="title-form" style="background:linear-gradient(#21f3c287, #21aef34f, #00bcd400);">Register  -  Login</div>
+                {% if messages %}
+                    <div class="valid-messages">
+                        <ul class="messages" id="messages">
+                            {% for message in messages %}
+                            <li>{{message}}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                <div class="container-form">
+                    <form class="formRegister" action="{% url 'register_dojo_app' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="django-form-wrapper">
+                            {{ user_form.as_p }}
+                            <br>
+                            <p><button type="submit">Register</button></p>
+                        </div>
+                        
+                    </form>
+                    <form class="formRegister" action="{% url 'login_dojo_app' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="django-form-wrapper">
+                            {{ user_login_form.as_p }}
+                            <br>
+                            <p><button type="submit">Login</button></p>
+                        </div>
+                        
+                    </form>
+                </div>
+                
+        </div>
+
+{% endblock %}
+
+    

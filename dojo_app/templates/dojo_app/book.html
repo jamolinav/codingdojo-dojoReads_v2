@@ -1,0 +1,60 @@
+{% extends 'dojo_app/base.html' %}
+
+{% block head %}
+    {% load static %}
+    <script src="{% static 'dojo_app/js/dojo_app.js' %}"></script>
+    <title>Dojo Reads</title>
+{% endblock %}
+
+{% block header%}
+    <h1 class="d-flex justify-content-center page-title">Dojo Reads</h1>
+{% endblock %}
+
+{% block content %}
+    {% load tz %}
+    {% timezone "America/Santiago" %}
+
+    {% if messages %}
+        <br>
+        <div class="valid-messages">
+            <ul class="messages" id="messages">
+                {% for message in messages %}
+                <li>{{message}}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+        <a href="{% url 'add_book' %}" style="display: flex; justify-content: flex-end; margin-right: 11%;">Add Book and Review</a>
+        <div class="tableFixHead table-wrapper" style="display: grid; grid-template-columns: 50% 50%;">
+            <div class="formRegister">
+                <h4 class="d-flex justify-content-center page-title">{{book.title}}</h4>
+                <p>Author: {{book.author.name}}</p>
+                <h3>Reviews:</h3>
+
+                <ul>
+                    {% for review in all_review %}
+                    <hr>
+                        <li>
+                           <p>{{review.review}}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="formRegister">
+                <h4 class="d-flex justify-content-center page-title">Add a Review</h4>
+                <form action="{% url 'add_review' %}" method="POST">
+                    {% csrf_token %} 
+                    <input type="hidden" name='id_book' value="{{book.id}}">
+                    <textarea name="review" id="" cols="30" rows="10">{{data.new_review}}</textarea>
+                    <select name="raiting" id="raiting">
+                        {% for i in max_star %}
+                            <option value="{{i}}">{{i}}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Submit Review</button>
+                </form>
+            </div>
+        </div>
+
+    {% endtimezone %}
+{% endblock %}
