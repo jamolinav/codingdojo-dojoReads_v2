@@ -26,27 +26,51 @@
     {% endif %}
         <a href="{% url 'add_book' %}" style="display: flex; justify-content: flex-end; margin-right: 11%;">Add Book and Review</a>
         <div class="tableFixHead table-wrapper" style="display: grid; grid-template-columns: 50% 50%;">
-            <div class="formRegister">
-                <h4 class="d-flex justify-content-center page-title">{{book.title}}</h4>
-                <p>Author: {{book.author.name}}</p>
-                <h3>Reviews:</h3>
+            <div class="container-form overflow-auto mb-3 mb-md-0 mr-md-3" style="height: 70%;">
+                <div class="formRegister">
+                    <h4 class="d-flex justify-content-center page-title">{{book.title}}</h4>
+                    <p>Author: {{book.author.name}}</p>
+                    <h3>Reviews:</h3>
 
-                <ul>
-                    {% for review in all_review %}
-                    <hr>
-                        <li>
-                           <p>{{review.review}}</p>
-                        </li>
-                    {% endfor %}
-                </ul>
+                    <ul>
+                        {% for review in all_review %}
+                        <hr>
+                            <li>
+                                <div>Raiting
+                                    {% for i in total_star %}
+                                        <span>  
+                                            {% if review.raiting > i  %}
+                                                {% load static %}
+                                                <img src="{% static 'dojo_app/img/star_enabled.png' %}" alt="" style="width: 15px; height: 15px;">
+                                            {% else %}
+                                                <img src="{% static 'dojo_app/img/star_disabled.png' %}" alt="" style="width: 15px; height: 15px;">
+                                            {% endif %}
+                                        </span>
+                                    {% endfor %}
+                                    <p><a href="{% url 'user' user_id=review.user.id %}">{{review.user.first_name}} {{review.user.last_name}}</a> 
+                                        says: 
+                                            {{review.review}}
+                                            <p> Posted on: {{review.updated_at}}</p>
+                                    </p>
+                                    {% if request.session.logged_user == review.user.email %}
+                                    <p>
+                                        <a href="{% url 'delete_review' review_id=review.id %}">Delete this Review</a>
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-            <div class="formRegister">
+            <div class="formRegister" >
                 <h4 class="d-flex justify-content-center page-title">Add a Review</h4>
-                <form action="{% url 'add_review' %}" method="POST">
+                <form action="{% url 'add_review' %}" method="POST" style="display: grid; gap: 20%;">
                     {% csrf_token %} 
                     <input type="hidden" name='id_book' value="{{book.id}}">
-                    <textarea name="review" id="" cols="30" rows="10">{{data.new_review}}</textarea>
-                    <select name="raiting" id="raiting">
+                    <textarea name="review" id="" cols="60" rows="5" style="margin-left: 20%; width: 70%;">{{data.new_review}}</textarea>
+                    <label for="raiting">Raiting: </label>
+                    <select name="raiting" id="raiting" style="margin-left: 20%; width: 20%;">
                         {% for i in max_star %}
                             <option value="{{i}}">{{i}}</option>
                         {% endfor %}

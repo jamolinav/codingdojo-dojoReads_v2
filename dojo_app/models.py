@@ -143,9 +143,15 @@ class ReviewManager(models.Manager):
 
         return errors
 
+def rango_raiting(raiting):
+    if raiting < 0 or raiting > 5:
+        raise ValidationError('Raiting debe esta entre 0 y 5')
+
 class Review(models.Model):
     review          = models.TextField()
+    raiting         = models.IntegerField(validators=[rango_raiting])
     book            = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     created_at      = models.DateTimeField(auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now=True)
     objects         = ReviewManager()

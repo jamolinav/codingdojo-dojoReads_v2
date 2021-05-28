@@ -16,6 +16,7 @@ HOME = 'home_'+APP_NAME
 def index(request):
     #return render(request, f'{APP_NAME}/index.html')
     return redirect(f'register_{APP_NAME}')
+
 def register(request):
     if request.method == 'GET':
         user_form = UserForm()
@@ -50,6 +51,7 @@ def register(request):
         user_form = UserForm(request.POST)
         if user_form.is_valid():
             user = user_form.save()
+            request.session['logged_user_name'] = user.first_name + ' ' + user.last_name
             request.session['logged_user'] = user.email
         else:
             context = {
@@ -68,6 +70,7 @@ def login(request):
             'user_form' : user_form,
             'user_login_form' : user_login_form,
             }
+        
         return render(request, f'{APP_NAME}/register.html', context)
 
     if request.method == 'POST':
@@ -107,6 +110,7 @@ def books(request):
         'bookForm'  : BookForm(),
         'all_books' : Book.objects.all().order_by('id')[::-1],
         'books_last_review' : Book.objects.filter(reviews__in=Review.objects.all()).order_by('-reviews__updated_at')[:3],
+        'last_reviews' : Review.objects.order_by('-updated_at')[:3],
         'others_books' : Book.objects.all(),
         'users' : User.objects.all(),
         'total_star' : range(5)
@@ -125,8 +129,9 @@ def book(request, id_book):
     book = books[0]
     context = {
         'book'  : book,
-        'all_review' : Review.objects.filter(book=book),
+        'all_review' : Review.objects.filter(book=book).order_by('-updated_at'),
         'max_star'  : [0,1,2,3,4,5],
+        'total_star' : range(5)
     }
     return render(request, f'{APP_NAME}/book.html', context)
 
@@ -142,11 +147,18 @@ def add_review(request):
         messages.error(request, 'Error al obtener libro')
         return redirect('books')
 
+    users = User.objects.filter(email=request.session['logged_user'])
+    if len(users) > 0:
+        user = users[0]
+    else:
+        messages.error(request, 'Usuario no existe')
+        return redirect('books')
+
     id_book = request.POST['id_book']
     books = Book.objects.filter(id=id_book)
     if len(books) != 1:
         messages.error(request, 'Libro no existe')
-        return redirect(books)
+        return redirect('books')
 
     book = books[0]
 
@@ -163,15 +175,10 @@ def add_review(request):
             return render(request,  f'{APP_NAME}/book.html', context)
 
     book.save()
-    review = Review(review=request.POST['review'], book=book)
+    review = Review(review=request.POST['review'], book=book, raiting=request.POST['raiting'], user=user)
     review.save()
 
-    context = {
-                'book'  : book,
-                'all_review' : Review.objects.filter(book=book),
-                'max_star'  : [0,1,2,3,4,5],
-            }
-    return render(request,  f'{APP_NAME}/book.html')
+    return redirect('book', id_book)
 
 def add_book(request):
     if 'logged_user' not in request.session:
@@ -188,6 +195,13 @@ def add_book(request):
     if request.method == 'POST':
         print(request.POST)
         errores = False
+
+        users = User.objects.filter(email=request.session['logged_user'])
+        if len(users) > 0:
+            user = users[0]
+        else:
+            messages.error(request, 'Usuario no existe')
+            return redirect('books')
 
         fields_validate = ['title','new_author','review', 'raiting']
         for field in fields_validate:
@@ -228,15 +242,47 @@ def add_book(request):
         else:
 
             print('grabar')
-            
+            print(request.POST)
             author = Author.ifExists(request.POST['new_author'])
             author.save()
 
             book = Book(title=request.POST['title'], raiting=request.POST['raiting'], author=author)
             book.save()
 
-            review = Review(review=request.POST['review'], book=book)
+            review = Review(review=request.POST['review'], book=book, raiting=request.POST['raiting'], user=user)
             review.save()
 
         return redirect('books')
     
+def user(request, user_id):
+    if 'logged_user' not in request.session:
+        return redirect(login)
+
+    users = User.objects.filter(id=user_id)
+    if len(users) > 0:
+        user = users[0]
+
+        context = {
+            'user' : user,
+            'total_reviews' : Review.objects.filter(user=user).count(),
+            'books_posted_reviews' : Book.objects.filter(reviews__in=Review.objects.filter(user=user)).distinct('title')
+        }
+
+        return render(request, f'{APP_NAME}/user.html', context)
+
+def delete_review(request, review_id):
+    if 'logged_user' not in request.session:
+        return redirect(login)
+
+    reviews = Review.objects.filter(id=review_id)
+    if len(reviews) > 0:
+        review = reviews[0]
+        if review.user.email == request.session['logged_user']:
+            review.delete()
+            messages.error(request, 'Review eliminado!')
+        else:
+            messages.error(request, 'Este review es de otro usuario')
+    else:
+        messages.error(request, 'Review no existe')
+        
+    return redirect('books')

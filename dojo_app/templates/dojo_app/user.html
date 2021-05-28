@@ -1,0 +1,58 @@
+{% extends 'dojo_app/base.html' %}
+
+{% block head %}
+    {% load static %}
+    <script src="{% static 'dojo_app/js/dojo_app.js' %}"></script>
+    <title>Dojo Reads</title>
+{% endblock %}
+
+{% block header%}
+    <h1 class="d-flex justify-content-center page-title">Dojo Reads</h1>
+{% endblock %}
+
+{% block content %}
+    {% load tz %}
+    {% timezone "America/Santiago" %}
+
+        {% if messages %}
+            <br>
+            <div class="valid-messages">
+                <ul class="messages" id="messages">
+                    {% for message in messages %}
+                    <li>{{message}}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="tableFixHead table-wrapper" style="">
+            <div class="formRegister">
+
+                    {% csrf_token %}
+                    <h4 class="d-flex justify-content-center page-title">User Alias: {{user.first_name}} {{user.last_name}}</h4>
+                    <p>
+                        <label for="title">Name:</label>
+                        {{user.first_name}} {{user.last_name}}
+                    </p>
+                    <p>
+                        <label for="title">Email:</label>
+                        {{user.email}}
+                    </p>
+                    <p>
+                        <label for="title">Total Reviews:</label>
+                        {{total_reviews}}
+                    </p>
+
+                    <p>Posted Reviews on the following books</p>
+                    <ul>
+                        {% for book in books_posted_reviews %}
+                        <li>
+                            <a href="{% url 'book' id_book=book.id %}">{{ book.title }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+            </div>
+        </div>
+
+    {% endtimezone %}
+{% endblock %}
